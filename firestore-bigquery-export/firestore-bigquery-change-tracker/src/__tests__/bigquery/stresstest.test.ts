@@ -31,7 +31,7 @@ describe("Stress testing", () => {
     });
   });
 
-  describe("running multiple chnages simulatenously", () => {
+  describe("running multiple changes simulatenously", () => {
     test(`Successfully handles ${count} simulteaneous inserts.`, async () => {
       const toRun = Array.from(Array(count).keys()).map((documentId) => {
         return new Promise(async (resolve) => {
@@ -57,6 +57,6 @@ describe("Stress testing", () => {
         maxResults: 100,
       });
       expect(rows[0].length).toEqual(count);
-    }, 180000);
+    }, 320000);
   });
 });
