@@ -54,6 +54,6 @@ describe("Stress testing", () => {
 
       const rows = await table.getRows();
       expect(rows[0].length).toEqual(100);
-    }, 120000);
+    }, 180000);
   });
 });
