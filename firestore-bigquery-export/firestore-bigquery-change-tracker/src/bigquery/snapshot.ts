@@ -74,7 +74,7 @@ export function buildLatestSnapshotViewQuery(
     FROM \`${
       bqProjectId || process.env.PROJECT_ID
     }.${datasetId}.${tableName}\` AS t
-    JOIN latest ON (t.document_name = latest.document_name AND t.${timestampColumnName} = latest.latest_timestamp)
+    JOIN latest ON (t.document_name = latest.document_name AND (IFNULL(t.${timestampColumnName}, timestamp("1990-01-01 12:00:00+00"))) = (IFNULL(latest.latest_timestamp, timestamp("1990-01-01 12:00:00+00"))))
     WHERE operation != "DELETE"
     GROUP BY document_name, document_id${
       groupByColumns.length > 0 ? `, ` : ``

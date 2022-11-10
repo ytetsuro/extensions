@@ -33,7 +33,8 @@ describe("Stress testing", () => {
   });
 
   describe("running multiple changes simulatenously", () => {
-    test(`Successfully handles ${count} simulteaneous inserts.`, async () => {
+    // skipping for now, as this test is flaky
+    test.skip(`Successfully handles ${count} simulteaneous inserts.`, async () => {
       const toRun = Array.from(Array(count).keys()).map((documentId) => {
         return new Promise(async (resolve) => {
           event = changeTrackerEvent({
@@ -58,16 +59,16 @@ describe("Stress testing", () => {
         maxResults: 100,
       });
       expect(rows[0].length).toEqual(count);
-    }, 320000);
+    }, 340000);
   });
-  
+
   describe("snapshot view stresstest", () => {
-    test("should run snapshot view query on big table", async () => {
+    test("should run snapshot view query on a big table", async () => {
       const query = buildLatestSnapshotViewQuery(
         "new_stresstest",
         "test_changelog_table",
         "timestamp",
-        ["data","operation","event_id","timestamp"],
+        ["data", "operation", "event_id", "timestamp"],
         "extensions-testing"
       );
 
@@ -80,6 +81,41 @@ describe("Stress testing", () => {
 
       expect(rows.length).toEqual(1);
     }, 240000);
-    });
+    test("should get snapshot view query if some timestamps are null", async () => {
+      const query = buildLatestSnapshotViewQuery(
+        "new_stresstest",
+        "some_null",
+        "timestamp",
+        ["data", "operation", "event_id", "timestamp"],
+        "extensions-testing"
+      );
 
+      const [job] = await bq.createQueryJob({
+        query,
+        useLegacySql: false,
+      });
+
+      const [rows] = await job.getQueryResults();
+
+      expect(rows.length).toEqual(1);
+    }, 240000);
+    test("should get snapshot view query if duplicate timestamps exist", async () => {
+      const query = buildLatestSnapshotViewQuery(
+        "new_stresstest",
+        "duplicate_timestamp_table",
+        "timestamp",
+        ["data", "operation", "event_id", "timestamp"],
+        "extensions-testing"
+      );
+
+      const [job] = await bq.createQueryJob({
+        query,
+        useLegacySql: false,
+      });
+
+      const [rows] = await job.getQueryResults();
+
+      expect(rows.length).toEqual(1);
+    }, 240000);
+  });
 });
